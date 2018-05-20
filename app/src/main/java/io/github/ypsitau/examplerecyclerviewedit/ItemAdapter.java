@@ -10,8 +10,11 @@ import android.widget.TextView;
 import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
-	private List<String> labels;
-	public static class ViewHolder extends RecyclerView.ViewHolder {
+	public abstract static class Listener {
+		abstract public void onNewItem(View viewLast);
+	};
+
+	public class ViewHolder extends RecyclerView.ViewHolder {
 		public View viewRoot;
 		boolean isMovable;
 		public TextView textView_label;
@@ -24,15 +27,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 			this.textView_overlap = viewRoot.findViewById(R.id.textView_overlap);
 			textView_overlap.setOnClickListener(new View.OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					App.Printf("New Item\n");
+				public void onClick(View view) {
+					listener.onNewItem(view);
 				}
 			});
 		}
 	}
 
-	public ItemAdapter(List<String> labels) {
+	private List<String> labels;
+	private Listener listener;
+
+	public ItemAdapter(List<String> labels, Listener listener) {
 		this.labels = labels;
+		this.listener = listener;
 	}
 
 	@NonNull
@@ -44,8 +51,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+		App.Printf("onBindViewHolder(%d)\n", position);
 		if (position < labels.size()) {
 			holder.textView_label.setText(labels.get(position));
+			holder.textView_overlap.setVisibility(View.GONE);
 			holder.isMovable = true;
 		} else {
 			holder.textView_overlap.setVisibility(View.VISIBLE);
@@ -55,5 +64,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 	@Override
 	public int getItemCount() {
 		return labels.size() + 1;
+	}
+
+	public void doAddItem(String label) {
+		labels.add(label);
+		notifyItemRangeChanged(labels.size() - 1, 2);
+	}
+
+	public void doRemoveItem(int fromPos) {
+		labels.remove(fromPos);
+		notifyItemRemoved(fromPos);
+	}
+
+	public void doMoveItem(int toPos, int fromPos) {
+		labels.add(toPos, labels.remove(fromPos));
+		notifyItemMoved(fromPos, toPos);
 	}
 }

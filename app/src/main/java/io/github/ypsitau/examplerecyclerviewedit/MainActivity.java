@@ -8,34 +8,39 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
 import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-	List<String> labels = new ArrayList<String>();
-
 	RecyclerView recyclerView;
+
+	final int REQCODE_EDITITEM = 1;
+	final int REQCODE_NEWITEM = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		for (int i = 0; i < 5; i++) {
-			labels.add(String.format("item #%d", i));
-		}
 		setContentView(R.layout.activity_main);
 		recyclerView = findViewById(R.id.recyclerView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 		final Context context = this;
-		recyclerView.setAdapter(new ItemAdapter(labels, new ItemAdapter.Listener() {
+		recyclerView.setAdapter(new ItemAdapter(new ItemAdapter.Listener() {
 			@Override
-			public void onNewItem(View viewLast) {
-				Intent intent = new Intent(context, NewItemActivity.class);
-				intent.putExtra(NewItemActivity.KEY_LABEL, String.format("item #%d", labels.size()));
-				startActivityForResult(intent, 123);
+			public void onEditItem(int pos) {
+				Intent intent = new Intent(context, EditItemActivity.class);
+				intent.putExtra(EditItemActivity.KEY_POS, pos);
+				intent.putExtra(EditItemActivity.KEY_LABEL, Model.getInstance().getItem(pos).label);
+				startActivityForResult(intent, REQCODE_EDITITEM);
+			}
+			@Override
+			public void onNewItem() {
+				Intent intent = new Intent(context, EditItemActivity.class);
+				int pos = Model.getInstance().getItemCount();
+				intent.putExtra(EditItemActivity.KEY_POS, pos);
+				intent.putExtra(EditItemActivity.KEY_LABEL, String.format("Item #%d", pos));
+				startActivityForResult(intent, REQCODE_NEWITEM);
 			}
 		}));
 		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
@@ -95,9 +100,14 @@ public class MainActivity extends AppCompatActivity {
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
 			if (resultCode == RESULT_OK) {
-				String label = bundle.getString(NewItemActivity.KEY_LABEL);
-				((ItemAdapter)recyclerView.getAdapter()).doAddItem(label);
-				recyclerView.scrollToPosition(labels.size());
+				int pos = bundle.getInt(EditItemActivity.KEY_POS);
+				String label = bundle.getString(EditItemActivity.KEY_LABEL);
+				if (requestCode == REQCODE_NEWITEM) {
+					((ItemAdapter)recyclerView.getAdapter()).doAddItem(label);
+					recyclerView.scrollToPosition(Model.getInstance().getItemCount());
+				} else if (requestCode == REQCODE_EDITITEM) {
+					((ItemAdapter) recyclerView.getAdapter()).doChangeItem(pos, label);
+				}
 			} else if (resultCode == RESULT_CANCELED) {
 				// nothing to do
 			}

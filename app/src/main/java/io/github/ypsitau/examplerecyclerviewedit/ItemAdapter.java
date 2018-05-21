@@ -11,34 +11,40 @@ import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 	public abstract static class Listener {
-		abstract public void onNewItem(View viewLast);
+		abstract public void onEditItem(int pos);
+		abstract public void onNewItem();
 	};
 
 	public class ViewHolder extends RecyclerView.ViewHolder {
 		public View viewRoot;
 		boolean isMovable;
 		public TextView textView_label;
-		public TextView textView_overlap;
+		public TextView textView_last;
 		public ViewHolder(View viewRoot) {
 			super(viewRoot);
 			this.viewRoot = viewRoot;
 			this.isMovable = false;
-			this.textView_label = viewRoot.findViewById(R.id.textView_label);
-			this.textView_overlap = viewRoot.findViewById(R.id.textView_overlap);
-			textView_overlap.setOnClickListener(new View.OnClickListener() {
+			textView_label = viewRoot.findViewById(R.id.textView_label);
+			textView_label.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					listener.onNewItem(view);
+					listener.onEditItem(getAdapterPosition());
+				}
+			});
+			textView_last = viewRoot.findViewById(R.id.textView_last);
+			textView_last.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					listener.onNewItem();
 				}
 			});
 		}
 	}
 
-	private List<String> labels;
+	//private List<String> labels;
 	private Listener listener;
 
-	public ItemAdapter(List<String> labels, Listener listener) {
-		this.labels = labels;
+	public ItemAdapter(Listener listener) {
 		this.listener = listener;
 	}
 
@@ -52,32 +58,42 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		App.Printf("onBindViewHolder(%d)\n", position);
-		if (position < labels.size()) {
-			holder.textView_label.setText(labels.get(position));
-			holder.textView_overlap.setVisibility(View.GONE);
+		if (position < Model.getInstance().getItemCount()) {
+			holder.textView_label.setText(Model.getInstance().getItem(position).label);
+			holder.textView_label.setVisibility(View.VISIBLE);
+			holder.textView_last.setVisibility(View.GONE);
 			holder.isMovable = true;
 		} else {
-			holder.textView_overlap.setVisibility(View.VISIBLE);
+			holder.textView_last.setVisibility(View.VISIBLE);
+			holder.textView_label.setVisibility(View.GONE);
 		}
 	}
 
 	@Override
 	public int getItemCount() {
-		return labels.size() + 1;
+		return Model.getInstance().getItemCount() + 1;
 	}
 
 	public void doAddItem(String label) {
-		labels.add(label);
-		notifyItemRangeChanged(labels.size() - 1, 2);
+		Model.getInstance().addItem(label);
+		notifyItemRangeChanged(Model.getInstance().getItemCount() - 1, 2);
 	}
 
 	public void doRemoveItem(int fromPos) {
-		labels.remove(fromPos);
+		//labels.remove(fromPos);
+		Model.getInstance().removeItem(fromPos);
 		notifyItemRemoved(fromPos);
 	}
 
 	public void doMoveItem(int toPos, int fromPos) {
-		labels.add(toPos, labels.remove(fromPos));
+		//labels.add(toPos, labels.remove(fromPos));
+		Model.getInstance().moveItem(toPos, fromPos);
 		notifyItemMoved(fromPos, toPos);
+	}
+
+	public void doChangeItem(int pos, String label) {
+		//labels.set(pos, label);
+		Model.getInstance().getItem(pos).label = label;
+		notifyItemChanged(pos);
 	}
 }

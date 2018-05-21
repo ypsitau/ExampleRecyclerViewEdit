@@ -19,6 +19,7 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		appInst = this;
+		Model.getInstance().initContent();
 	}
 	static App getInstance() { return appInst; }
 	static Context getContext() { return getInstance().getApplicationContext(); }

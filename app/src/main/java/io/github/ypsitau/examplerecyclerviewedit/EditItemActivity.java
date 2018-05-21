@@ -10,13 +10,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class NewItemActivity extends AppCompatActivity {
+public class EditItemActivity extends AppCompatActivity {
+	public static String KEY_POS = "POS";
 	public static String KEY_LABEL = "LABEL";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
+		final int pos = intent.getIntExtra(KEY_POS, -1);
 		setContentView(R.layout.activity_new_item);
 		final EditText editText = findViewById(R.id.editText);
 		final Button button_Enter = findViewById(R.id.button_Enter);
@@ -27,6 +29,7 @@ public class NewItemActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
+				bundle.putInt(KEY_POS, pos);
 				bundle.putString(KEY_LABEL, editText.getText().toString());
 				intent.putExtras(bundle);
 				setResult(RESULT_OK, intent);

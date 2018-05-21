@@ -12,25 +12,26 @@
 		android:textSize="20sp"
 		android:gravity="center_vertical"
 		android:layout_marginTop="1dp"
+		android:visibility="invisible"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent" />
+		app:layout_constraintRight_toLeftOf="@+id/textView_last" />
 
 	<TextView
-		android:id="@+id/textView_overlap"
+		android:id="@+id/textView_last"
 		android:layout_width="0dp"
 		android:layout_height="30sp"
 		android:textSize="16sp"
 		android:gravity="center"
 		android:background="@drawable/oval_shape"
-		android:visibility="gone"
 		android:text="New Item"
 		android:textColor="#ffffff"
 		android:layout_margin="4dp"
+		android:visibility="invisible"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintLeft_toRightOf="@+id/textView_label"
 		app:layout_constraintRight_toRightOf="parent" />
 
 

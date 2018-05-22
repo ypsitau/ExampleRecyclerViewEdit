@@ -28,10 +28,12 @@ public class MainActivity extends AppCompatActivity {
 		final Context context = this;
 		recyclerView.setAdapter(new ItemAdapter(new ItemAdapter.Listener() {
 			@Override
-			public void onEditItem(int pos) {
+			public void onEditItem(int pos, int field) {
 				Intent intent = new Intent(context, EditItemActivity.class);
 				intent.putExtra(EditItemActivity.KEY_POS, pos);
-				intent.putExtra(EditItemActivity.KEY_LABEL, Model.getInstance().getItem(pos).label);
+				intent.putExtra(EditItemActivity.KEY_FIELD_FOCUS, field);
+				intent.putExtra(EditItemActivity.KEY_LABEL, Model.getInstance().getItem(pos).getLabel());
+				intent.putExtra(EditItemActivity.KEY_PRICE, Model.getInstance().getItem(pos).getPrice());
 				startActivityForResult(intent, REQCODE_EDITITEM);
 			}
 			@Override
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 				int pos = Model.getInstance().getItemCount();
 				intent.putExtra(EditItemActivity.KEY_POS, pos);
 				intent.putExtra(EditItemActivity.KEY_LABEL, String.format("Item #%d", pos));
+				intent.putExtra(EditItemActivity.KEY_PRICE, 0);
 				startActivityForResult(intent, REQCODE_NEWITEM);
 			}
 		}));
@@ -97,20 +100,21 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		if (intent != null) {
-			Bundle bundle = intent.getExtras();
-			if (resultCode == RESULT_OK) {
-				int pos = bundle.getInt(EditItemActivity.KEY_POS);
-				String label = bundle.getString(EditItemActivity.KEY_LABEL);
-				if (requestCode == REQCODE_NEWITEM) {
-					((ItemAdapter)recyclerView.getAdapter()).doAddItem(label);
-					recyclerView.scrollToPosition(Model.getInstance().getItemCount());
-				} else if (requestCode == REQCODE_EDITITEM) {
-					((ItemAdapter) recyclerView.getAdapter()).doChangeItem(pos, label);
-				}
-			} else if (resultCode == RESULT_CANCELED) {
-				// nothing to do
+		if (intent == null) return;
+		Bundle bundle = intent.getExtras();
+		if (resultCode == RESULT_OK) {
+			int pos = bundle.getInt(EditItemActivity.KEY_POS);
+			String label = bundle.getString(EditItemActivity.KEY_LABEL);
+			int price = bundle.getInt(EditItemActivity.KEY_PRICE);
+			if (requestCode == REQCODE_NEWITEM) {
+				((ItemAdapter)recyclerView.getAdapter()).doAddItem(label, price);
+				recyclerView.scrollToPosition(Model.getInstance().getItemCount());
+			} else if (requestCode == REQCODE_EDITITEM) {
+				((ItemAdapter) recyclerView.getAdapter()).doChangeItem(pos, label, price);
 			}
+		} else if (resultCode == RESULT_CANCELED) {
+			App.Printf("canceled\n");
+			// nothing to do
 		}
 	}
 }

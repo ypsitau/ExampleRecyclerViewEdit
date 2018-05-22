@@ -5,6 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="#ffffff">
+
 	<TextView
 		android:id="@+id/textView_label"
 		android:layout_width="0dp"
@@ -14,14 +15,25 @@
 		android:layout_marginTop="1dp"
 		android:visibility="invisible"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toTopOf="@+id/textView_last"
 		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toLeftOf="@+id/textView_last" />
+		app:layout_constraintRight_toLeftOf="@+id/textView_price" />
+
+	<TextView
+		android:id="@+id/textView_price"
+		android:layout_width="100dp"
+		android:layout_height="40sp"
+		android:textSize="20sp"
+		android:gravity="center_vertical|right"
+		android:visibility="invisible"
+		app:layout_constraintBaseline_toBaselineOf="@+id/textView_label"
+		app:layout_constraintLeft_toRightOf="@+id/textView_label"
+		app:layout_constraintRight_toRightOf="parent" />
 
 	<TextView
 		android:id="@+id/textView_last"
 		android:layout_width="0dp"
-		android:layout_height="30sp"
+		android:layout_height="60sp"
 		android:textSize="16sp"
 		android:gravity="center"
 		android:background="@drawable/oval_shape"
@@ -29,10 +41,9 @@
 		android:textColor="#ffffff"
 		android:layout_margin="4dp"
 		android:visibility="invisible"
-		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textView_label"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintLeft_toRightOf="@+id/textView_label"
+		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent" />
-
 
 </android.support.constraint.ConstraintLayout>

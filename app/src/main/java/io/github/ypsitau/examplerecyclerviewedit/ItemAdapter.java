@@ -7,11 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 	public abstract static class Listener {
-		abstract public void onEditItem(int pos);
+		abstract public void onEditItem(int pos, int field);
 		abstract public void onNewItem();
 	};
 
@@ -19,6 +17,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 		public View viewRoot;
 		boolean isMovable;
 		public TextView textView_label;
+		public TextView textView_price;
 		public TextView textView_last;
 		public ViewHolder(View viewRoot) {
 			super(viewRoot);
@@ -28,7 +27,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 			textView_label.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					listener.onEditItem(getAdapterPosition());
+					listener.onEditItem(getAdapterPosition(), Model.FIELD_LABEL);
+				}
+			});
+			textView_price = viewRoot.findViewById(R.id.textView_price);
+			textView_price.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					listener.onEditItem(getAdapterPosition(), Model.FIELD_PRICE);
 				}
 			});
 			textView_last = viewRoot.findViewById(R.id.textView_last);
@@ -41,7 +47,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 		}
 	}
 
-	//private List<String> labels;
 	private Listener listener;
 
 	public ItemAdapter(Listener listener) {
@@ -59,13 +64,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		App.Printf("onBindViewHolder(%d)\n", position);
 		if (position < Model.getInstance().getItemCount()) {
-			holder.textView_label.setText(Model.getInstance().getItem(position).label);
+			holder.textView_label.setText(Model.getInstance().getItem(position).getLabel());
+			holder.textView_price.setText(Model.formatPrice(Model.getInstance().getItem(position).getPrice()));
 			holder.textView_label.setVisibility(View.VISIBLE);
+			holder.textView_price.setVisibility(View.VISIBLE);
 			holder.textView_last.setVisibility(View.GONE);
 			holder.isMovable = true;
 		} else {
-			holder.textView_last.setVisibility(View.VISIBLE);
 			holder.textView_label.setVisibility(View.GONE);
+			holder.textView_price.setVisibility(View.GONE);
+			holder.textView_last.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -74,26 +82,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 		return Model.getInstance().getItemCount() + 1;
 	}
 
-	public void doAddItem(String label) {
-		Model.getInstance().addItem(label);
+	public void doAddItem(String label, int price) {
+		Model.getInstance().addItem(label, price);
 		notifyItemRangeChanged(Model.getInstance().getItemCount() - 1, 2);
 	}
 
 	public void doRemoveItem(int fromPos) {
-		//labels.remove(fromPos);
 		Model.getInstance().removeItem(fromPos);
 		notifyItemRemoved(fromPos);
 	}
 
 	public void doMoveItem(int toPos, int fromPos) {
-		//labels.add(toPos, labels.remove(fromPos));
 		Model.getInstance().moveItem(toPos, fromPos);
 		notifyItemMoved(fromPos, toPos);
 	}
 
-	public void doChangeItem(int pos, String label) {
-		//labels.set(pos, label);
-		Model.getInstance().getItem(pos).label = label;
+	public void doChangeItem(int pos, String label, int price) {
+		Model.getInstance().getItem(pos).setValues(label, price);
 		notifyItemChanged(pos);
 	}
 }

@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class EditItemActivity extends AppCompatActivity {
-	public static String KEY_POS = "POS";
-	public static String KEY_FIELD_FOCUS = "FIELD_FOCUS";
-	public static String KEY_LABEL = "LABEL";
-	public static String KEY_PRICE = "PRICE";
+	public static String KEY_POS = "pos";
+	public static String KEY_FIELD_FOCUS = "field_focus";
+	public static String KEY_LABEL = "label";
+	public static String KEY_PRICE = "price";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,21 +29,24 @@ public class EditItemActivity extends AppCompatActivity {
 		final Button button_cancel = findViewById(R.id.button_cancel);
 		editText_label.setText(intent.getStringExtra(KEY_LABEL));
 		editText_price.setText(Model.formatPrice(intent.getIntExtra(KEY_PRICE, 0)));
+		View viewFocus = editText_label;
 		switch (fieldFocus) {
-			case Model.FIELD_LABEL: editText_label.requestFocus(); break;
-			case Model.FIELD_PRICE: editText_price.requestFocus(); break;
+			case Model.FIELD_LABEL: viewFocus = editText_label; break;
+			case Model.FIELD_PRICE: viewFocus = editText_price; break;
 			default: break;
 		}
-		final Activity thisActivity = this;
+		viewFocus.setFocusable(true);
+		viewFocus.setFocusableInTouchMode(true);
+		viewFocus.requestFocus();
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(viewFocus, InputMethodManager.SHOW_IMPLICIT);
 		button_enter.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-				Bundle bundle = new Bundle();
-				bundle.putInt(KEY_POS, pos);
-				bundle.putString(KEY_LABEL, editText_label.getText().toString());
-				bundle.putInt(KEY_PRICE, Integer.parseInt(editText_price.getText().toString()));
-				intent.putExtras(bundle);
+				intent.putExtra(KEY_POS, pos)
+						.putExtra(KEY_LABEL, editText_label.getText().toString())
+						.putExtra(KEY_PRICE, Integer.parseInt(editText_price.getText().toString()));
 				setResult(RESULT_OK, intent);
 				finish();
 			}
